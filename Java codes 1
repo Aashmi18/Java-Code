@@ -1,0 +1,650 @@
+1)//Count Subarrays by Product Modulo K
+
+class Solution {
+    public long[] resultArray(int[] nums, int k) {
+        long[] result = new long[k];
+        long[] dp = new long[k];
+
+        for (int num : nums) {
+            long[] newDp = new long[k];
+
+            newDp[num % k]++;
+
+            for (int r = 0; r < k; r++) {
+                int newR = (r * num) % k;
+                newDp[newR] += dp[r];
+            }
+
+            for (int r = 0; r < k; r++) {
+                result[r] += newDp[r];
+            }
+
+            dp = newDp;
+        }
+
+        return result;
+    }
+}
+
+
+2)//Given a circle and a rectangle, check whether they overlap.
+
+class Solution { 
+    public boolean checkOverlap(int radius, int xCenter, int yCenter, 
+                                int x1, int y1, int x2, int y2) { 
+ 
+        int x = Math.max(x1, Math.min(xCenter, x2)); 
+        int y = Math.max(y1, Math.min(yCenter, y2)); 
+ 
+        int dx = x - xCenter; 
+        int dy = y - yCenter; 
+ 
+        return dx * dx + dy * dy <= radius * radius; 
+    } 
+} 
+
+3)//You are given an array of digits. Count how many distinct 3-digit even numbers can be formed using these digits.
+
+class Solution {
+    public int totalNumbers(int[] digits) {
+        int[] freq = new int[10];
+
+        for (int d : digits)
+            freq[d]++;
+
+        int count = 0;
+
+        for (int n = 100; n <= 998; n++) {
+            if (n % 2 != 0)
+                continue;
+
+            int a = n / 100;
+            int b = (n / 10) % 10;
+            int c = n % 10;
+
+            int[] need = new int[10];
+            need[a]++;
+            need[b]++;
+            need[c]++;
+
+            boolean valid = true;
+
+            for (int i = 0; i < 10; i++) {
+                if (need[i] > freq[i]) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid)
+                count++;
+        }
+
+        return count;
+    }
+}
+
+4)//Reverse Degree of a String
+
+
+class Solution {
+    public int reverseDegree(String s) {
+        int sum = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            int value = 26 - (s.charAt(i) - 'a');
+            int position = i + 1;
+            sum += value * position;
+        }
+
+        return sum;
+    }
+}
+
+5)//Maximum Weight of Non-Overlapping Intervals
+
+import java.util.*;
+
+class Solution {
+    int[][] a;
+    int n;
+    Result[][] dp;
+
+    class Result {
+        long score;
+        List<Integer> list;
+
+        Result(long score, List<Integer> list) {
+            this.score = score;
+            this.list = list;
+        }
+    }
+
+    public int[] maximumWeight(int[][] intervals) {
+        n = intervals.length;
+        a = new int[n][4];
+
+        for (int i = 0; i < n; i++) {
+            a[i] = new int[]{
+                intervals[i][0],
+                intervals[i][1],
+                intervals[i][2],
+                i
+            };
+        }
+
+        Arrays.sort(a, (x, y) -> x[0] - y[0]);
+
+        dp = new Result[n + 1][5];
+
+        Result ans = solve(0, 4);
+
+        int[] result = new int[ans.list.size()];
+
+        for (int i = 0; i < ans.list.size(); i++)
+            result[i] = ans.list.get(i);
+
+        return result;
+    }
+
+    Result solve(int i, int k) {
+        if (i == n || k == 0)
+            return new Result(0, new ArrayList<>());
+
+        if (dp[i][k] != null)
+            return dp[i][k];
+
+        Result skip = solve(i + 1, k);
+
+        int next = i + 1;
+
+        while (next < n && a[next][0] <= a[i][1])
+            next++;
+
+        Result take = solve(next, k - 1);
+
+        List<Integer> list = new ArrayList<>(take.list);
+        list.add(a[i][3]);
+        Collections.sort(list);
+
+        take = new Result(take.score + a[i][2], list);
+
+        if (take.score > skip.score ||
+            (take.score == skip.score &&
+             compare(take.list, skip.list) < 0)) {
+            dp[i][k] = take;
+        } else {
+            dp[i][k] = skip;
+        }
+
+        return dp[i][k];
+    }
+
+    int compare(List<Integer> a, List<Integer> b) {
+        for (int i = 0; i < Math.min(a.size(), b.size()); i++) {
+            if (!a.get(i).equals(b.get(i)))
+                return Integer.compare(a.get(i), b.get(i));
+        }
+
+        return Integer.compare(a.size(), b.size());
+    }
+}
+
+6)//Reverse degree of a String
+
+class Solution {
+    public int reverseDegree(String s) {
+        int sum = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            int value = 26 - (s.charAt(i) - 'a');
+            sum += value * (i + 1);
+        }
+
+        return sum;
+    }
+}
+
+7))//Rectangle overlap
+
+class Solution {
+    public boolean isRectangleOverlap(int[] rec1, int[] rec2) {
+        return rec1[0] < rec2[2] &&
+               rec2[0] < rec1[2] &&
+               rec1[1] < rec2[3] &&
+               rec2[1] < rec1[3];
+    }
+}
+
+8)//Two non overlapping sub array with target sum
+
+class Solution {
+    public int minSumOfLengths(int[] arr, int target) {
+        int n = arr.length;
+        int[] best = new int[n];
+        Arrays.fill(best, Integer.MAX_VALUE);
+
+        int left = 0, sum = 0;
+        int ans = Integer.MAX_VALUE;
+
+        for (int right = 0; right < n; right++) {
+            sum += arr[right];
+
+            while (sum > target) {
+                sum -= arr[left++];
+            }
+
+            if (right > 0) {
+                best[right] = best[right - 1];
+            }
+
+            if (sum == target) {
+                int len = right - left + 1;
+
+                if (left > 0 && best[left - 1] != Integer.MAX_VALUE) {
+                    ans = Math.min(ans, len + best[left - 1]);
+                }
+
+                best[right] = Math.min(best[right], len);
+            }
+        }
+
+        return ans == Integer.MAX_VALUE ? -1 : ans;
+    }
+}
+
+9)//Distinct Subsequent 
+
+
+class Solution {
+    public int distinctSubseqII(String s) {
+        int MOD = 1000000007;
+        long[] dp = new long[26];
+
+        for (char c : s.toCharArray()) {
+            int i = c - 'a';
+            long total = 1;
+
+            for (long x : dp)
+                total = (total + x) % MOD;
+
+            dp[i] = total;
+        }
+
+        long ans = 0;
+        for (long x : dp)
+            ans = (ans + x) % MOD;
+
+        return (int) ans;
+    }
+}
+
+10)// count node equal to avg of sub tree
+
+class Solution {
+    int count = 0;
+
+    public int averageOfSubtree(TreeNode root) {
+        dfs(root);
+        return count;
+    }
+
+    int[] dfs(TreeNode node) {
+        if (node == null)
+            return new int[]{0, 0};
+
+        int[] left = dfs(node.left);
+        int[] right = dfs(node.right);
+
+        int sum = left[0] + right[0] + node.val;
+        int nodes = left[1] + right[1] + 1;
+
+        if (node.val == sum / nodes)
+            count++;
+
+        return new int[]{sum, nodes};
+    }
+}
+
+11)// rotate String 
+
+class Solution {
+    public boolean rotateString(String s, String goal) {
+        if (s.length() != goal.length())
+            return false;
+
+        return (s + s).contains(goal);
+    }
+}
+
+12)//Maximize the Distance Between Points on a Square
+
+import java.util.*;
+
+class Solution {
+    long[] nums;
+    int n;
+    long perimeter;
+    int k;
+
+    public int maxDistance(int side, int[][] points, int k) {
+        this.k = k;
+        n = points.length;
+        perimeter = 4L * side;
+
+        nums = new long[2 * n];
+
+        long[] temp = new long[n];
+
+        for (int i = 0; i < n; i++) {
+            int x = points[i][0];
+            int y = points[i][1];
+
+            if (x == 0)
+                temp[i] = y;
+            else if (y == side)
+                temp[i] = side + x;
+            else if (x == side)
+                temp[i] = 3L * side - y;
+            else
+                temp[i] = 4L * side - x;
+        }
+
+        Arrays.sort(temp);
+
+        for (int i = 0; i < n; i++) {
+            nums[i] = temp[i];
+            nums[i + n] = temp[i] + perimeter;
+        }
+
+        long low = 1;
+        long high = side;
+
+        while (low < high) {
+            long mid = (low + high + 1) / 2;
+
+            if (check(mid))
+                low = mid;
+            else
+                high = mid - 1;
+        }
+
+        return (int) low;
+    }
+
+    boolean check(long dist) {
+        for (int i = 0; i < n; i++) {
+            long start = nums[i];
+            long end = start + perimeter - dist;
+            long current = start;
+
+            boolean possible = true;
+
+            for (int j = 1; j < k; j++) {
+                int next = lowerBound(current + dist);
+
+                if (next >= 2 * n || nums[next] > end) {
+                    possible = false;
+                    break;
+                }
+
+                current = nums[next];
+            }
+
+            if (possible)
+                return true;
+        }
+
+        return false;
+    }
+
+    int lowerBound(long target) {
+        int left = 0;
+        int right = 2 * n;
+
+        while (left < right) {
+            int mid = (left + right) / 2;
+
+            if (nums[mid] < target)
+                left = mid + 1;
+            else
+                right = mid;
+        }
+
+        return left;
+    }
+}
+
+13)//rotated digits
+
+class Solution {
+    public int rotatedDigits(int n) {
+        int count = 0;
+
+        for (int i = 1; i <= n; i++) {
+            int num = i;
+            boolean valid = true;
+            boolean different = false;
+
+            while (num > 0) {
+                int digit = num % 10;
+
+                if (digit == 2 || digit == 5 ||
+                    digit == 6 || digit == 9) {
+                    if (digit == 2 || digit == 5 ||
+                        digit == 6 || digit == 9)
+                        different = true;
+                } else if (digit == 0 || digit == 1 || digit == 8) {
+                } else {
+                    valid = false;
+                    break;
+                }
+
+                num /= 10;
+            }
+
+            if (valid && different)
+                count++;
+        }
+
+        return count;
+    }
+}
+
+14)//Maximum Path Score in a Grid
+
+class Solution {
+    public int maxPathScore(int[][] grid, int k) {
+        int m = grid.length;
+        int n = grid[0].length;
+
+        int[][][] dp = new int[m][n][k + 1];
+
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                for (int c = 0; c <= k; c++)
+                    dp[i][j][c] = -1;
+
+        int cost = grid[0][0] == 0 ? 0 : 1;
+
+        if (cost > k)
+            return -1;
+
+        dp[0][0][cost] = grid[0][0];
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                for (int c = 0; c <= k; c++) {
+                    if (dp[i][j][c] == -1)
+                        continue;
+
+                    if (i + 1 < m) {
+                        int nc = c + (grid[i + 1][j] == 0 ? 0 : 1);
+
+                        if (nc <= k) {
+                            dp[i + 1][j][nc] = Math.max(
+                                dp[i + 1][j][nc],
+                                dp[i][j][c] + grid[i + 1][j]
+                            );
+                        }
+                    }
+
+                    if (j + 1 < n) {
+                        int nc = c + (grid[i][j + 1] == 0 ? 0 : 1);
+
+                        if (nc <= k) {
+                            dp[i][j + 1][nc] = Math.max(
+                                dp[i][j + 1][nc],
+                                dp[i][j][c] + grid[i][j + 1]
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        int ans = -1;
+
+        for (int c = 0; c <= k; c++)
+            ans = Math.max(ans, dp[m - 1][n - 1][c]);
+
+        return ans;
+    }
+}
+
+15)//Max score from grid operations 
+
+class Solution {
+    public long maximumScore(int[][] grid) {
+        int n = grid.length;
+
+        if (n == 1)
+            return 0;
+
+        long[][] s = new long[n][n + 1];
+
+        for (int j = 0; j < n; j++) {
+            for (int i = 0; i < n; i++) {
+                s[j][i + 1] = s[j][i] + grid[i][j];
+            }
+        }
+
+        long INF = Long.MIN_VALUE / 2;
+
+        long[][] dp = new long[n + 1][n + 1];
+
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= n; j++) {
+                dp[i][j] = INF;
+            }
+        }
+
+        for (int h = 0; h <= n; h++) {
+            dp[h][0] = 0;
+        }
+
+        for (int col = 0; col < n - 1; col++) {
+            long[][] next = new long[n + 1][n + 1];
+
+            for (int i = 0; i <= n; i++) {
+                for (int j = 0; j <= n; j++) {
+                    next[i][j] = INF;
+                }
+            }
+
+            for (int h1 = 0; h1 <= n; h1++) {
+                long[] pre = new long[n + 2];
+                long[] suf = new long[n + 2];
+
+                for (int i = 0; i <= n + 1; i++) {
+                    pre[i] = INF;
+                    suf[i] = INF;
+                }
+
+                pre[0] = dp[h1][0];
+
+                for (int h2 = 1; h2 <= n; h2++) {
+                    pre[h2] = Math.max(pre[h2 - 1], dp[h1][h2]);
+                }
+
+                for (int h2 = n; h2 >= 0; h2--) {
+                    long val = INF;
+
+                    if (dp[h1][h2] != INF) {
+                        val = dp[h1][h2] +
+                              Math.max(0L, s[col][h2] - s[col][h1]);
+                    }
+
+                    suf[h2] = Math.max(suf[h2 + 1], val);
+                }
+
+                for (int hp = 0; hp <= n; hp++) {
+                    long add = Math.max(0L, s[col][hp] - s[col][h1]);
+
+                    long v1 = INF;
+
+                    if (pre[hp] != INF) {
+                        v1 = pre[hp] + add;
+                    }
+
+                    next[hp][h1] = Math.max(v1, suf[hp + 1]);
+                }
+            }
+
+            dp = next;
+        }
+
+        long ans = 0;
+
+        for (int h1 = 0; h1 <= n; h1++) {
+            for (int h2 = 0; h2 <= n; h2++) {
+                if (dp[h1][h2] != INF) {
+                    ans = Math.max(
+                        ans,
+                        dp[h1][h2] +
+                        Math.max(0L, s[n - 1][h2] - s[n - 1][h1])
+                    );
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+
+16)//Minimum Operations to Make a Uni-Value Grid
+
+
+import java.util.*;
+
+class Solution {
+    public int minOperations(int[][] grid, int x) {
+        int m = grid.length;
+        int n = grid[0].length;
+
+        int[] arr = new int[m * n];
+        int k = 0;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                arr[k++] = grid[i][j];
+            }
+        }
+
+        for (int i = 0; i < arr.length; i++) {
+            if ((arr[i] - arr[0]) % x != 0)
+                return -1;
+        }
+
+        Arrays.sort(arr);
+
+        int median = arr[arr.length / 2];
+        int operations = 0;
+
+        for (int num : arr) {
+            operations += Math.abs(num - median) / x;
+        }
+
+        return operations;
+    }
+}
